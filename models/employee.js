@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     gender: DataTypes.STRING
   }, {
     sequelize,
+    // timestamps:false,
     modelName: 'employee',
   });
   return employee;

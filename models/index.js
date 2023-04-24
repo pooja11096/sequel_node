@@ -1,9 +1,5 @@
 'use strict';
-// const express = require('express');
-// const app = express();
-// const bodyParser = require('body-parser');
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({extended:true}));
+
 const fs = require('fs');
 const path = require('path');
 const Sequelize = require('sequelize');
@@ -15,9 +11,17 @@ const db = {};
 
 let sequelize;
 if (config.use_env_variable) {
-  sequelize = new Sequelize(process.env[config.use_env_variable], config);
+  sequelize = new Sequelize(process.env[config.use_env_variable], config,{
+    define:{
+      timestamps:false
+    }
+  });
 } else {
-  sequelize = new Sequelize(config.database, config.username, config.password, config);
+  sequelize = new Sequelize(config.database, config.username, config.password, config, {
+    define:{
+      timestamps:false
+    }
+  });
 }
 
 fs
@@ -46,6 +50,7 @@ db.Sequelize = Sequelize;
 
 db.users = require('./users')(sequelize,Sequelize);
 db.user_detail = require('./user_detail')(sequelize,Sequelize);
+db.post_tags = require('./post_tag')(sequelize,Sequelize);
 db.posts = require('./posts')(sequelize,Sequelize);
 db.tags = require('./tags')(sequelize,Sequelize);
 
@@ -61,7 +66,7 @@ db.posts.belongsToMany(db.tags,{through:'post_tag'});
 db.tags.belongsToMany(db.posts,{through:'post_tag'});
 
 
-db.sequelize.sync().then(()=>{
+db.sequelize.sync({ force: false}).then(()=>{
   console.log("re sync");
 })
 

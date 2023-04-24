@@ -1,11 +1,13 @@
 // const { Sequelize} = require('../models');
 const db = require("../models");
 const { Op } = require("sequelize");
+const { post } = require("../routes/user.route");
 
 const users = db.users;
 const user_detail = db.user_detail;
 const posts = db.posts;
 const tags = db.tags;
+const post_tags = db.post_tags;
 // const post_tag = db.post_tag;
 
 const self = {};
@@ -85,9 +87,72 @@ self.createUser = async (req, res) => {
       firstname: req.body.firstname,
       lastname: req.body.lastname,
       email: req.body.email,
+      post: req.body.posts,
     };
-    console.log(newUser);
     let data = await users.create(newUser);
+
+    var allPosts = [];
+
+    if (data && data.id) {
+      await user_detail.create({
+        password: req.body.password,
+        user_id: data.id,
+      });
+      let postlength = req.body.posts.length;
+
+      console.log("length", postlength);
+
+      if (req.body.posts) {
+        for (var i = 0; i < postlength; i++) {
+          console.log("data:", req.body.posts[i].name);
+          let postData = {
+            name: req.body.posts[i].name,
+            title: req.body.posts[i].title,
+            content: req.body.posts[i].content,
+            user_id: data.id,
+          };
+          allPosts.push(postData);
+          console.log("hkj", allPosts);
+        }
+
+        await posts.bulkCreate(allPosts);
+      }
+
+      
+      let lastPost = await posts.findAll({
+        limit:1,
+        order:[
+          ['id','DESC']
+        ]
+      });
+      console.log("lastPost",lastPost);
+      // console.log("id",req.lastPost.dataValues.id);
+
+
+    let tagArr = [];
+     console.log(req.body.posts[0].id);
+
+      for (var i = 0; i < postlength; i++) {
+        
+        let tagL = req.body.posts[i].tags.length;
+        if(tagL){
+          console.log("tag_l", tagL);
+
+          for (var j = 0; j < tagL; j++) {
+            let tagData = {
+              name: req.body.posts[i].tags[j].name,
+            };
+            tagArr.push(tagData);
+            console.log("tags", tagArr);
+          }
+        
+
+        }
+        
+      }
+      await tags.bulkCreate(tagArr);
+
+    }
     return res.status(200).json({
       message: "data",
       data: data,
@@ -97,10 +162,27 @@ self.createUser = async (req, res) => {
   }
 };
 
+
+
+self.getAllPosts = async (req, res) => {
+  try {
+    let data = await posts.findAll({
+      include: [
+        {
+          model: tags,
+        },
+      ],
+    });
+    res.send(data);
+  } catch (error) {
+    console.log({ error });
+  }
+};
+
 self.getAllData = async (req, res) => {
   try {
     let data = await users.findAll({
-    //   order: [["firstname", "ASC"]],
+      //   order: [["firstname", "ASC"]],
     });
 
     console.log({ data });
@@ -122,7 +204,7 @@ self.updateUser = async (req, res) => {
     let data = users.update(newData, { where: { id: req.params.id } });
     console.log(data);
     return res.status(200).json({
-        "message":"data updated"
+      message: "data updated",
     });
   } catch (error) {
     console.log({ error });
@@ -131,7 +213,8 @@ self.updateUser = async (req, res) => {
 
 self.searching = async (req, res) => {
   try {
-    let { firstname, lastname,email } = req.query;
+    let { firstname, lastname, email } = req.query;
+
     // let query = req.params.query;
     const data = await users.findAll({
       where: {
@@ -144,7 +227,7 @@ self.searching = async (req, res) => {
           },
           {
             email: { [Op.like]: `%${email}%` },
-          }
+          },
         ],
       },
     });
@@ -162,7 +245,7 @@ self.paginationSorting = async (req, res) => {
 
     // const search_key = req.query.search;
 
-    let page = 0;
+    let page = 1;
     if (!Number.isNaN(pageNum) && pageNum > 0) {
       page = pageNum;
     }
@@ -176,7 +259,7 @@ self.paginationSorting = async (req, res) => {
     console.log("size", size);
 
     const data = await users.findAndCountAll({
-    //   order: [["firstname", "ASC"]],
+      //   order: [["firstname", "ASC"]],
 
       limit: size,
       offset: page * size,

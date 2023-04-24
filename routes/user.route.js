@@ -7,15 +7,19 @@ router.get('/manytomany',userData.manyToMany);
 
 router.get('/',userData.getAllData);
 
+router.get('/posts',userData.getAllPosts);
+
+
 router.post('/',userData.createUser);
+
+router.put('/:id',userData.updateUser);
+
+router.delete('/:id',userData.deleteData);
 
 router.get('/pagination',userData.paginationSorting);
 
 router.get('/search',userData.searching);
 
-router.put('/:id',userData.updateUser);
-
-router.delete('/:id',userData.deleteData);
 
 
 
