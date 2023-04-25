@@ -83,76 +83,121 @@ self.createUser = async (req, res) => {
     res.status(500).send({ message: "Bad request" });
   }
   try {
-    const newUser = {
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      email: req.body.email,
-      post: req.body.posts,
-    };
-    let data = await users.create(newUser);
+    // const newUser = {
+    //   firstname: req.body.firstname,
+    //   lastname: req.body.lastname,
+    //   email: req.body.email,
+    //   post: req.body.posts,
 
-    var allPosts = [];
+    // };
 
-    if (data && data.id) {
-      await user_detail.create({
-        password: req.body.password,
-        user_id: data.id,
-      });
-      let postlength = req.body.posts.length;
+    // let data = await users.create(newUser); //creates user
 
-      console.log("length", postlength);
+    // if (data && data.id) {
+    //   await user_detail.create({
+    //     // inserts data in user_detail table (onetoone)
+    //     password: req.body.password,
+    //     user_id: data.id,
+    //   });
 
-      if (req.body.posts) {
-        for (var i = 0; i < postlength; i++) {
-          console.log("data:", req.body.posts[i].name);
-          let postData = {
-            name: req.body.posts[i].name,
-            title: req.body.posts[i].title,
-            content: req.body.posts[i].content,
-            user_id: data.id,
-          };
-          allPosts.push(postData);
-          console.log("hkj", allPosts);
-        }
+    //   let postlength = req.body.posts.length;
+    //   var postid = [];
+    //   var tagid = [];
 
-        await posts.bulkCreate(allPosts);
-      }
+    //   if (req.body.posts) {
+    //     for (var i = 0; i < postlength; i++) {
+    //       let postData = {
+    //         name: req.body.posts[i].name,
+    //         title: req.body.posts[i].title,
+    //         content: req.body.posts[i].content,
+    //         user_id: data.id,
+    //       };
 
-      
-      let lastPost = await posts.findAll({
-        limit:1,
-        order:[
-          ['id','DESC']
-        ]
-      });
-      console.log("lastPost",lastPost);
-      // console.log("id",req.lastPost.dataValues.id);
+    //       const insertedPost = await posts.create(postData); // inserts data in posts table (onetomany )
+    //       postid.push(insertedPost.id);
+
+    //       let tagL = req.body.posts[i].tags.length;
+    //       if (tagL) {
+    //         for (var j = 0; j < tagL; j++) {
+    //           let tagData = {
+    //             name: req.body.posts[i].tags[j].name,
+    //           };
+    //           const insertedTag = await tags.create(tagData); // inserts data in tags table (manytomany )
+    //           tagid.push(insertedTag.id);
+
+    //           await post_tags.create({
+    //             //inserts data in pivot table post_tags
+    //             postId: insertedPost.id,
+    //             tagId: insertedTag.id,
+    //           });
+    //         }
+    //       }
+    //     }
+    //   }
+
+    //   console.log("postids", postid);
+    //   console.log("tagids", tagid);
+    // }
+    let postD =[];
+    let tagD =[];
 
 
-    let tagArr = [];
-     console.log(req.body.posts[0].id);
+    if (req.body.posts) {
+      let postL = req.body.posts.length;
+      // console.log(tagL);
+      console.log(postL);
+      for (var i = 0; i < postL; i++) {
+        if (req.body.posts.length) {
+          let tagL = req.body.posts[i].tags.length;
 
-      for (var i = 0; i < postlength; i++) {
-        
-        let tagL = req.body.posts[i].tags.length;
-        if(tagL){
-          console.log("tag_l", tagL);
-
-          for (var j = 0; j < tagL; j++) {
-            let tagData = {
-              name: req.body.posts[i].tags[j].name,
-            };
-            tagArr.push(tagData);
-            console.log("tags", tagArr);
+          console.log(tagL);
+          if (tagL) {
+            for (var j = 0; j < tagL; j++) {
+              let postData = {
+                name: req.body.posts[i].name,
+                title: req.body.posts[i].title,
+                content: req.body.posts[i].content,
+              };
+              let tagData = {
+                name: req.body.posts[i].tags[j].name,
+              };
+              postD.push(postData);
+              tagD.push(tagData);
+              console.log(postData);
+              console.log(tagData);
+            }
           }
-        
-
         }
-        
       }
-      await tags.bulkCreate(tagArr);
-
     }
+    console.log("postdata",postD);
+    console.log("tagdata",tagD);
+
+
+     let data = await users.create({
+
+        firstname:req.body.firstname,
+        lastname:req.body.lastname,
+        email:req.body.email,
+        // posts:{postData[0]
+        //   tags:tagData
+        // }
+        // posts:[{postD,
+        // tags:[{tagD}]}]
+          // postD,
+          // name:req.body.posts.name,
+          // title:req.body.posts.title,
+          // content:req.body.posts.content,
+          // tags:[{
+          //   tagD
+          // }]
+        // }
+     },{
+      include:[{
+        association:db.userPost,
+        include:[db.postTag]
+      }]
+     })
     return res.status(200).json({
       message: "data",
       data: data,
@@ -161,8 +206,6 @@ self.createUser = async (req, res) => {
     console.log({ err });
   }
 };
-
-
 
 self.getAllPosts = async (req, res) => {
   try {
@@ -183,6 +226,19 @@ self.getAllData = async (req, res) => {
   try {
     let data = await users.findAll({
       //   order: [["firstname", "ASC"]],
+      include: [
+        {
+          model: user_detail,
+        },
+        {
+          model: posts,
+          include: [
+            {
+              model: tags,
+            },
+          ],
+        },
+      ],
     });
 
     console.log({ data });
@@ -202,7 +258,57 @@ self.updateUser = async (req, res) => {
     };
     console.log(newData);
     let data = users.update(newData, { where: { id: req.params.id } });
+
     console.log(data);
+
+    if (data && data.id) {
+      await user_detail.update({
+        // inserts data in user_detail table (onetoone)
+        password: req.body.password,
+        where: {
+          user_id: data.id,
+        },
+      });
+
+      let postlength = req.body.posts.length;
+      var postid = [];
+      var tagid = [];
+
+      if (req.body.posts) {
+        for (var i = 0; i < postlength; i++) {
+          let postData = {
+            name: req.body.posts[i].name,
+            title: req.body.posts[i].title,
+            content: req.body.posts[i].content,
+            user_id: data.id,
+          };
+
+          const insertedPost = await posts.create(postData); // inserts data in posts table (onetomany )
+          postid.push(insertedPost.id);
+
+          let tagL = req.body.posts[i].tags.length;
+          if (tagL) {
+            for (var j = 0; j < tagL; j++) {
+              let tagData = {
+                name: req.body.posts[i].tags[j].name,
+              };
+              const insertedTag = await tags.create(tagData); // inserts data in tags table (manytomany )
+              tagid.push(insertedTag.id);
+
+              await post_tags.create({
+                //inserts data in pivot table post_tags
+                postId: insertedPost.id,
+                tagId: insertedTag.id,
+              });
+            }
+          }
+        }
+      }
+
+      console.log("postids", postid);
+      console.log("tagids", tagid);
+    }
+
     return res.status(200).json({
       message: "data updated",
     });

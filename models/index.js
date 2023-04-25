@@ -58,12 +58,17 @@ db.tags = require('./tags')(sequelize,Sequelize);
 db.users.hasOne(db.user_detail,{foreignKey:'user_id'});
 db.user_detail.belongsTo(db.users,{foreignKey:'user_id'});
 
-db.users.hasMany(db.posts,{foreignKey:'user_id'});
-db.posts.belongsTo(db.users,{foreignKey:'user_id'});
+ db.userPost =  db.users.hasMany(db.posts,{foreignKey:'user_id', as:'posts'});
+ db.posts.belongsTo(db.users,{foreignKey:'user_id'});
 
 
-db.posts.belongsToMany(db.tags,{through:'post_tag'});
+db.postTag = db.posts.belongsToMany(db.tags,{through:'post_tag', as:'tags'});
 db.tags.belongsToMany(db.posts,{through:'post_tag'});
+
+
+// db.tagPost = db.tags.belongsTo(db.post,{foreignKey:'user_id', as:'users'});
+
+// db.postTag = db.posts.hasMany(db.tags,{foreignKey:'user_id', as:'tags'})
 
 
 db.sequelize.sync({ force: false}).then(()=>{
