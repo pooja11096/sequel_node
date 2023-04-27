@@ -56,6 +56,7 @@ self.onetoMany = async (req, res) => {
   }
 };
 
+
 self.manyToMany = async (req, res) => {
   try {
     let data = await posts.findAll({
@@ -83,121 +84,25 @@ self.createUser = async (req, res) => {
     res.status(500).send({ message: "Bad request" });
   }
   try {
-    // const newUser = {
-    //   firstname: req.body.firstname,
-    //   lastname: req.body.lastname,
-    //   email: req.body.email,
-    //   post: req.body.posts,
+  
+    let data = await users.create(
+      {
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        email: req.body.email,
+        user_detail:req.body.user_detail,
+        posts: req.body.posts    
+      },
+      {
+        include: [{association:db.userDetails},
+          {
 
-    // };
-
-    // let data = await users.create(newUser); //creates user
-
-    // if (data && data.id) {
-    //   await user_detail.create({
-    //     // inserts data in user_detail table (onetoone)
-    //     password: req.body.password,
-    //     user_id: data.id,
-    //   });
-
-    //   let postlength = req.body.posts.length;
-    //   var postid = [];
-    //   var tagid = [];
-
-    //   if (req.body.posts) {
-    //     for (var i = 0; i < postlength; i++) {
-    //       let postData = {
-    //         name: req.body.posts[i].name,
-    //         title: req.body.posts[i].title,
-    //         content: req.body.posts[i].content,
-    //         user_id: data.id,
-    //       };
-
-    //       const insertedPost = await posts.create(postData); // inserts data in posts table (onetomany )
-    //       postid.push(insertedPost.id);
-
-    //       let tagL = req.body.posts[i].tags.length;
-    //       if (tagL) {
-    //         for (var j = 0; j < tagL; j++) {
-    //           let tagData = {
-    //             name: req.body.posts[i].tags[j].name,
-    //           };
-    //           const insertedTag = await tags.create(tagData); // inserts data in tags table (manytomany )
-    //           tagid.push(insertedTag.id);
-
-    //           await post_tags.create({
-    //             //inserts data in pivot table post_tags
-    //             postId: insertedPost.id,
-    //             tagId: insertedTag.id,
-    //           });
-    //         }
-    //       }
-    //     }
-    //   }
-
-    //   console.log("postids", postid);
-    //   console.log("tagids", tagid);
-    // }
-    let postD =[];
-    let tagD =[];
-
-
-    if (req.body.posts) {
-      let postL = req.body.posts.length;
-      // console.log(tagL);
-      console.log(postL);
-      for (var i = 0; i < postL; i++) {
-        if (req.body.posts.length) {
-          let tagL = req.body.posts[i].tags.length;
-
-          console.log(tagL);
-          if (tagL) {
-            for (var j = 0; j < tagL; j++) {
-              let postData = {
-                name: req.body.posts[i].name,
-                title: req.body.posts[i].title,
-                content: req.body.posts[i].content,
-              };
-              let tagData = {
-                name: req.body.posts[i].tags[j].name,
-              };
-              postD.push(postData);
-              tagD.push(tagData);
-              console.log(postData);
-              console.log(tagData);
-            }
-          }
-        }
+            association: db.userPost,
+            include: [db.postTag]
+          },
+        ],
       }
-    }
-    console.log("postdata",postD);
-    console.log("tagdata",tagD);
-
-
-     let data = await users.create({
-
-        firstname:req.body.firstname,
-        lastname:req.body.lastname,
-        email:req.body.email,
-        // posts:{postData[0]
-        //   tags:tagData
-        // }
-        // posts:[{postD,
-        // tags:[{tagD}]}]
-          // postD,
-          // name:req.body.posts.name,
-          // title:req.body.posts.title,
-          // content:req.body.posts.content,
-          // tags:[{
-          //   tagD
-          // }]
-        // }
-     },{
-      include:[{
-        association:db.userPost,
-        include:[db.postTag]
-      }]
-     })
+    );
     return res.status(200).json({
       message: "data",
       data: data,
@@ -222,23 +127,34 @@ self.getAllPosts = async (req, res) => {
   }
 };
 
+self.getById = async (req,res)=>{
+  try{
+    let id = req.params.id;
+    let data = await users.findAll({
+      include: [{association:db.userDetails},
+        {
+
+          association: db.userPost,
+          include: [db.postTag]
+        },
+      ]
+    },{where:{id:id}});
+  }catch (err) {
+    console.log({ err });
+  }
+}
+
 self.getAllData = async (req, res) => {
   try {
     let data = await users.findAll({
-      //   order: [["firstname", "ASC"]],
-      include: [
+      include: [{association:db.userDetails},
         {
-          model: user_detail,
-        },
-        {
-          model: posts,
-          include: [
-            {
-              model: tags,
-            },
-          ],
+
+          association: db.userPost,
+          include: [db.postTag]
         },
       ],
+     
     });
 
     console.log({ data });
@@ -248,74 +164,120 @@ self.getAllData = async (req, res) => {
   }
 };
 
-self.updateUser = async (req, res) => {
-  try {
-    // let id = req.params.id;
+
+
+self.updateIt = async (req,res)=>{
+  try{
+    let id=req.params.id;
     let newData = {
       firstname: req.body.firstname,
       lastname: req.body.lastname,
       email: req.body.email,
+      posts: req.body.posts   
     };
-    console.log(newData);
-    let data = users.update(newData, { where: { id: req.params.id } });
 
-    console.log(data);
+    let postD = [];
+    let tagD = [];
 
-    if (data && data.id) {
-      await user_detail.update({
-        // inserts data in user_detail table (onetoone)
-        password: req.body.password,
-        where: {
-          user_id: data.id,
-        },
-      });
+    if (req.body.posts) {
+      let postL = req.body.posts.length;
+      
+      for (var i = 0; i < postL; i++) {
+        if (req.body.posts.length) {
+          let tagL = req.body.posts[i].tags.length;
 
-      let postlength = req.body.posts.length;
-      var postid = [];
-      var tagid = [];
-
-      if (req.body.posts) {
-        for (var i = 0; i < postlength; i++) {
           let postData = {
             name: req.body.posts[i].name,
             title: req.body.posts[i].title,
             content: req.body.posts[i].content,
-            user_id: data.id,
-          };
-
-          const insertedPost = await posts.create(postData); // inserts data in posts table (onetomany )
-          postid.push(insertedPost.id);
-
-          let tagL = req.body.posts[i].tags.length;
-          if (tagL) {
-            for (var j = 0; j < tagL; j++) {
-              let tagData = {
-                name: req.body.posts[i].tags[j].name,
-              };
-              const insertedTag = await tags.create(tagData); // inserts data in tags table (manytomany )
-              tagid.push(insertedTag.id);
-
-              await post_tags.create({
-                //inserts data in pivot table post_tags
-                postId: insertedPost.id,
-                tagId: insertedTag.id,
-              });
-            }
-          }
+          };     
+          postD.push(postData);
         }
       }
-
-      console.log("postids", postid);
-      console.log("tagids", tagid);
     }
 
-    return res.status(200).json({
-      message: "data updated",
-    });
-  } catch (error) {
+    console.log("postdata",postD);
+
+    // let pData={
+    //   name:
+    // }
+    let pData = {
+      name:req.body.posts[0].name,
+      title:req.body.posts[0].title,
+      content:req.body.posts[0].content,
+      user_id:req.params.id
+    }
+
+    let data = await users.update(req.body,{where:{
+      id:id
+    } 
+  }).then(async function(){
+    await users.findByPk(id,{include:[{
+      association: db.userPost,
+      include: [db.postTag]
+    }]}).then(async function(user){
+      await posts.findOrCreate({where:{
+
+        // {
+        
+        // user_id:id
+        // postD
+        name:req.body.posts[0].name,
+        title:req.body.posts[0].title,
+        content:req.body.posts[0].content,
+        user_id:req.params.id
+      }
+     
+      })
+        .then(post =>{
+          user.setPosts(post.user_id)
+        })
+      })
+      
+    })
+  return res.status(200).json({
+    message: "data updated",
+    data:data
+  });
+  }catch (error) {
     console.log({ error });
   }
-};
+}
+
+
+self.updateAll = async (req,res)=>{
+  try{  
+    let id=req.params.id;
+    let newData = {
+      firstname: req.body.firstname,
+      lastname: req.body.lastname,
+      email: req.body.email,
+      user_detail:req.body.user_detail
+
+    }
+
+    await users.update(newData,{
+      where:{
+        id:id
+      }
+    })
+    .then(async function(){
+      await users.findOne({where:{id:id}})
+      .then(async function(user){
+        await user.user_detail.update(req.body.user_detail,{where:{user_id:id}})
+    })
+  })
+
+  
+    return res.status(200).json({
+        message: "data updated",
+        data:data,
+      });
+    }catch(err){
+      res.send(err);
+    }
+}
+   
 
 self.searching = async (req, res) => {
   try {
@@ -384,9 +346,15 @@ self.deleteData = async (req, res) => {
     let id = req.params.id;
     let data = await users.destroy({
       where: {
-        id: id,
+        id: id
+      }
+    },{include: [{association:db.userDetails},
+      {
+
+        association: db.userPost,
+        include: [db.postTag]
       },
-    });
+    ],});
     if (data === 1) {
       return res.send("data deleted");
     } else {
