@@ -9,22 +9,12 @@ router.get('/manytomany',userData.manyToMany);
 
 router.get('/',userData.getAllData);
 
-// router.get('/posts',userData.getAllPosts);
-
 router.get('/:id',userData.getById);
 
 router.post('/',userData.createUser);
 
-router.put('/:id',userData.updateIt);
+// router.put('/:id',userData.Update);
 
-
-router.delete('/:id',userData.deleteData);
-
-router.get('/pagination',userData.paginationSorting);
-
-router.get('/search',userData.searching);
-
-
-
+router.delete('/:id',userData.deleteIt);
 
 module.exports = router;
