@@ -1,0 +1,21 @@
+ // var draw = request.query.draw;
+
+    // var start = request.query.start;
+
+    // var length = request.query.length;
+
+    // var order_data = request.query.order;
+
+    // if (typeof order_data == "undefined") {
+    //   var column_name = "users.firstname";
+
+    //   var column_sort_order = "desc";
+    // } else {
+    //   var column_index = request.query.order[0]["column"];
+
+    //   var column_name = request.query.columns[column_index]["data"];
+
+    //   var column_sort_order = request.query.order[0]["dir"];
+    // }
+
+    // var search_value = request.query.search['value'];
