@@ -14,4 +14,4 @@ router.get('/', function(req,res,next){
 
 router.get('/get_data',userData.getData);
 
-module.exports = router;
+module.exports = router;    

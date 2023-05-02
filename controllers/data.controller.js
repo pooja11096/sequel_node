@@ -1,5 +1,6 @@
 const db = require("../models");
 const { Op } = require("sequelize");
+const user_detail = require("../models/user_detail");
 // const user = require("../models/user");
 
 const users = db.users;
@@ -13,9 +14,7 @@ self.InsertUser = async (req,res)=>{
             firstname:req.body.firstname,
             lastname:req.body.lastname,
             email:req.body.email,
-            gender:req.body.gender,
-            contact: req.body.contact,
-            passwprd:req.body.password,
+            user_details:req.body.user_details
             // user_details:req.body.user_details
 
         },{
@@ -33,8 +32,15 @@ self.InsertUser = async (req,res)=>{
 self.showData = async (req,res)=>{
     try{
         const data = await users.findAndCountAll({
-            include:[db.userDetails]
+            // include:[db.user_details]
+            // include:[db.userDetails]
             // as:'user_details'
+            include:[{
+                model: db.user_details,
+
+            }],
+            // attributes:{exclude:['firstname']}
+            
         })
         .then((data)=>{
             return res.status(200).json(data);
@@ -146,13 +152,21 @@ self.getData = async (req,res)=>{
               console.log("offset",typeof offset);   
           
               const columns = ["id","firstname", "lastname", "email"];
+            //   const colums2 = ["gender","contact","password"];
               const {dir, column} = order[0];
               const columnOrder = columns[column];
               const orderDirection = dir.toUpperCase();
           
               const query = {
                 where: {},
-                include:[db.userDetails],
+                include:{
+                    model:user_details,
+                    // attributes: {exclu}
+                    attributes:{exclude:['id']}
+
+                    // as:'user_details'
+                },
+
                 offset: +offset,
                 limit: +limit,
                 order: [[columnOrder, orderDirection]]
@@ -167,13 +181,25 @@ self.getData = async (req,res)=>{
           
               const data = await users.findAndCountAll(query,{
               });
-          
+
+              let target = data.rows;
+            //   let source = 
+            //   let data2 =[];
+            //   for(var i=0;i<data.rows.length;i++) {
+            //     data2.push(data.rows[i].user_detail);
+            //   }
+            //   console.log("data2",data2);
+            //   console.log(typeof data.rows);
+            //   var obj = data.rows.concat(data2)
+            //   console.log("obj",obj);
           
               return res.json({
                 draw: parseInt(draw),
                 recordsTotal: data.count,
                 recordsFiltered: data.count,
-                data: data.rows,
+                data:data.rows
+                // data1:data2
+                
               });
     }catch(err){
         console.log("err");

@@ -43,8 +43,9 @@ db.Sequelize = Sequelize;
 db.users = require('./user')(sequelize,Sequelize);
 db.user_details = require('./user_detail')(sequelize,Sequelize);
 
-db.users.hasOne(db.user_details,{foreignKey:'user_id', as:'user_details'});
-db.userDetails = db.user_details.belongsTo(db.users,{foreignKey:'user_id', as:'user_details'});
+db.users.hasOne(db.user_details,{foreignKey:'user_id'});
+db.user_details.belongsTo(db.users,{foreignKey:'user_id'});
+
 
 db.sequelize.sync({ force:false}).then(()=>{
   console.log('db synced');
