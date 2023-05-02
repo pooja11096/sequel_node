@@ -42,7 +42,7 @@ self.getData = async (req, res) => {
     const offset = req.query.start || 0;
     const limit = req.query.length || 10;
 
-    // console.log("order",order);
+    console.log("order",order);
 
     const columns = ["id","firstname", "lastname", "email"];
     // const column2 = ["name","content"]
