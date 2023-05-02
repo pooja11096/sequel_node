@@ -19,3 +19,26 @@
     // }
 
     // var search_value = request.query.search['value'];
+
+
+ // render: function(d,t,r){
+        //   let arr = [];
+        //   if(r.posts.length){
+        //     for(var i=0;i<r.posts.length;i++){
+        //       arr.push(r.posts[i].name)
+        //     }  
+        //   }
+        //   console.log(arr);
+        //   return arr; 
+        // }
+
+     // render: function(d,t,r){
+        //   let arr = [];
+        //   if(r.posts.length){
+        //     for(var i=0;i<r.posts.length;i++){
+        //       arr.push(r.posts[i].content)
+        //     }  
+        //   }
+        //   console.log(arr);
+        //   return arr; 
+        // }   

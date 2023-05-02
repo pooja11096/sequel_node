@@ -7,14 +7,6 @@ app.set('view engine', 'ejs');
 
 app.use(express.urlencoded({ extended: true }));
 
-
-// app.get('/',(req,res)=>{
-//     res.json({ message: "Welcome" });
-// });
-
-// db.sequelize.sync();
-
-
 const data = require('./routes/data.route');
 app.use('/',data);
 

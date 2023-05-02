@@ -41,6 +41,10 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 db.users = require('./user')(sequelize,Sequelize);
+db.posts = require('./posts')(sequelize,Sequelize);
+
+db.userPost = db.users.hasMany(db.posts,{foreignKey:'user_id'});
+db.posts.belongsTo(db.users,{foreignKey:'user_id'});
 
 db.sequelize.sync({ force: false}).then(()=>{
   console.log("re sync");

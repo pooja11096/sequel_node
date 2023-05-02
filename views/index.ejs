@@ -45,6 +45,14 @@
                   <th>firstname</th>
                   <th>lastname</th>
                   <th>email</th>
+                  <th>name</th>
+                  <th>content</th>
+                  <!-- <th>id</th>
+                  <th>post name</th>
+                  <th>post content</th>
+                  <th>email</th>
+                  <th>firstname</th>
+                  <th>lastname</th> -->
                 </tr>
               </thead>
               <tbody></tbody>
@@ -64,7 +72,6 @@
     <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
 
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bootstrap5.min.js"></script>
-
   </body>
 </html>
 
@@ -76,57 +83,66 @@
       serverMethod: "get",
       ajax: {
         url: "/get_data",
-    //       data:function(d){
-    //     d.draw = d.draw || 1;
-    //     d.start = d.start || 0;
-    //     d.length = d.length || 10;
-    //     d.search = d.search || {};
-    //     d.order = d.order || [{column:0, dir:'asc'}];
-    //   },
        
-     
       },
-  
-      columns: [{ data: "id" }, {data: "firstname" }, { data: "lastname" }, { data: "email" }],
+
+      columns: [
+        { data: "id" },
+        { data: "firstname" },
+        { data: "lastname" },
+        { data: "email" },
+        { data: "posts[].name",
+        orderable:false
+        },
+        { data: "posts[].content",
+        orderable:false
+        },
+
+        // { data: "id" },
+        // { data: "name" },
+        // { data: "content" },
+        // { data: "firstname" },
+        // { data: "lastname"},
+        // { data: "email"}
+      ],
       searching: true,
       lengthMenu: [
         5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90,
         95, 100,
       ],
 
-    //   paging:true,
-    //   order: [[0,'asc']],
+      //   paging:true,
+      //   order: [[0,'asc']],
 
-    //   start: 0,
-    //   lenght:10,
-    //   pageLength: 5,
-    //   start:0,
-    //   length:5,
+      //   start: 0,
+      //   lenght:10,
+      //   pageLength: 5,
+      //   start:0,
+      //   length:5,
 
       //   aaSorting: [[0,'desc']],
       //   pageLength: 5,
-      
+
       //   order: [[0, "asc"]],
-     
-      
-    //   pagingType: "numbers",
-    //   paginate: {
-    //     next: "Next",
-    //     previous: "Previous",
-    //   },
-    //   language: {
-    //     info: "Show _START_ to _END_ from _TOTAL_ (filterded) zoekvragen (Pag. _PAGE_ from _PAGES_)",
-    //     infoEmpty: "No data",
-    //     emptyTable: "No data",
-    //     zeroRecords: "No data",
-    //     infoFiltered: " - Total number of zoekvragen: _MAX_",
-    //     paginate: {
-    //       first: "First",
-    //       last: "Last",
-    //       next: "Next",
-    //       previous: "Previous",
-    //     },
-    //   },
+
+      //   pagingType: "numbers",
+      //   paginate: {
+      //     next: "Next",
+      //     previous: "Previous",
+      //   },
+      //   language: {
+      //     info: "Show _START_ to _END_ from _TOTAL_ (filterded) zoekvragen (Pag. _PAGE_ from _PAGES_)",
+      //     infoEmpty: "No data",
+      //     emptyTable: "No data",
+      //     zeroRecords: "No data",
+      //     infoFiltered: " - Total number of zoekvragen: _MAX_",
+      //     paginate: {
+      //       first: "First",
+      //       last: "Last",
+      //       next: "Next",
+      //       previous: "Previous",
+      //     },
+      //   },
     });
   });
 </script>
