@@ -5,80 +5,98 @@ const { Op } = require("sequelize");
 const users = db.users;
 const posts = db.posts;
 
-let self = {}; 
+let self = {};
 
-self.insertData = async (req,res)=>{
-  try{
-    let data = await users.create({
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      email: req.body.email,
-      posts:req.body.posts
-    },{
-      include:[db.userPost]
-    })
+self.insertData = async (req, res) => {
+  try {
+    let data = await users.create(
+      {
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        email: req.body.email,
+        posts: req.body.posts,
+      },
+      {
+        include: [db.userPost],
+      }
+    );
     return res.json(data);
-  }catch(err){
+  } catch (err) {
     return res.send(err);
   }
-}
+};
 
-
-self.showData  = async (req,res)=>{
-  try{
+self.showData = async (req, res) => {
+  try {
     let data = await users.findAll({
-      include:[db.userPost],
-      where:{favorite:1}
-    })
+      include: [db.userPost],
+      where: { favorite: 1 },
+    });
     return res.json(data);
-  }catch(err){
+  } catch (err) {
     return res.send(err);
   }
-}
+};
 
 self.getData = async (req, res) => {
   try {
     const { draw, search, order } = req.query;
+
     const offset = req.query.start || 0;
     const limit = req.query.length || 10;
 
-    console.log("order",order);
+    const columns = ["id", "firstname", "lastname", "email"];
 
-    const columns = ["id","firstname", "lastname", "email"];
-    // const column2 = ["name","content"]
-    const {dir, column} = order[0];
-    // console.log("dir",dir);
-    // console.log("column",column);
+    const { dir, column } = order[0];
 
-    const columnOrder = columns[column];
-    // console.log(columnOrder);
-    const orderDirection = dir.toUpperCase();
+    columnOrder = columns[column];
+    orderDirection = dir.toUpperCase();
 
+    if (column == 4) {
+      orderBy = [[posts, "name", orderDirection]];
+    } else if (column == 5) {
+      orderBy = [[posts, "content", orderDirection]];
+    } else {
+      var orderBy = [[columnOrder, orderDirection]];
+    }
+   
     const query = {
-      where: {},
-      
-      include:{
+      subQuery: false,
+
+      where: {
+        [Op.or]: {
+          firstname: {
+            [Op.like]: `%${search.value}%`,
+          },
+          lastname: {
+            [Op.like]: `%${search.value}%`,
+          },
+          email: {
+            [Op.like]: `%${search.value}%`,
+          },
+
+          "$posts.name$": {
+            [Op.like]: `%${search.value}%`,
+          },
+          "$posts.content$": {
+            [Op.like]: `%${search.value}%`,
+          },
+        },
+      },
+
+      include: {
         association: db.userPost,
-        where:{
-          favorite:1
-        }
+        where: {
+          favorite: 1,
+        },
       },
       offset: +offset,
       limit: +limit,
-      order: [[columnOrder, orderDirection]],
-
-
+      order: orderBy,
     };
 
-    if (search.value) {
-      query.where[Op.or] = columns.map((column) => ({
-        [column]: { [Op.like]: `%${search.value}%` },
-      }));
-    }
-
-
     const data = await users.findAndCountAll(query);
-    
+
     return res.json({
       draw: parseInt(draw),
       recordsTotal: data.count,
@@ -86,7 +104,6 @@ self.getData = async (req, res) => {
       data: data.rows,
     });
   } catch (err) {
-
     return res.status(500).send(err);
   }
 };

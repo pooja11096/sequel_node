@@ -42,3 +42,18 @@
         //   console.log(arr);
         //   return arr; 
         // }   
+
+
+          // if (search.value) {
+     
+    //   // query.where[Op.or] = columns.map((column) => ({
+    //   //   [column]: { [Op.like]: `%${search.value}%` },
+
+  
+    //   // }));
+    //   query.where[Op.or] = columns2.map((column) => ({
+
+    //     [column]: { [Op.like]: `%${search.value}%` },
+
+    // }))
+    // }
