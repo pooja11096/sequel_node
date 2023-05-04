@@ -42,9 +42,9 @@
               <thead>
                 <tr>
                   <th>id</th>
-                  <th>firstname</th>
-                  <th>lastname</th>
-                  <th>email</th>
+                  <th>First Name</th>
+                  <th>Last Name</th>
+                  <th>Email</th>
                   <th>gender</th>
                   <th>contact</th>
                   <th>password</th>
@@ -78,13 +78,7 @@
       serverMethod: "get",
       ajax: {
         url: "/get_data",
-        //       data:function(d){
-        //     d.draw = d.draw || 1;
-        //     d.start = d.start || 0;
-        //     d.length = d.length || 10;
-        //     d.search = d.search || {};
-        //     d.order = d.order || [{column:0, dir:'asc'}];
-        //   },
+       
       },
 
       columns: [
@@ -92,9 +86,9 @@
         { data: "firstname" },
         { data: "lastname" },
         { data: "email" },
-        { data: "user_detail.gender",orderable:false},
-        { data: "user_detail.contact",orderable:false },
-        { data: "user_detail.password",orderable:false },
+        { data: "user_detail.gender"},
+        { data: "user_detail.contact"},
+        { data: "user_detail.password"}
        
       ],
       
@@ -104,38 +98,6 @@
         95, 100,
       ],
 
-      //   paging:true,
-      //   order: [[0,'asc']],
-
-      //   start: 0,
-      //   lenght:10,
-      //   pageLength: 5,
-      //   start:0,
-      //   length:5,
-
-      //   aaSorting: [[0,'desc']],
-      //   pageLength: 5,
-
-      //   order: [[0, "asc"]],
-
-      //   pagingType: "numbers",
-      //   paginate: {
-      //     next: "Next",
-      //     previous: "Previous",
-      //   },
-      //   language: {
-      //     info: "Show _START_ to _END_ from _TOTAL_ (filterded) zoekvragen (Pag. _PAGE_ from _PAGES_)",
-      //     infoEmpty: "No data",
-      //     emptyTable: "No data",
-      //     zeroRecords: "No data",
-      //     infoFiltered: " - Total number of zoekvragen: _MAX_",
-      //     paginate: {
-      //       first: "First",
-      //       last: "Last",
-      //       next: "Next",
-      //       previous: "Previous",
-      //     },
-      //   },
     });
   });
 </script>
