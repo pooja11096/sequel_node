@@ -15,7 +15,7 @@ self.onetoOne = async (req, res) => {
   try {
     console.log("data");
     let data = await users.findAll({
-     include:[db.userDetails]
+      include: [db.userDetails],
     });
     console.log("data1");
     return res.status(200).json({
@@ -33,7 +33,7 @@ self.onetoOne = async (req, res) => {
 self.onetoMany = async (req, res) => {
   try {
     let data = await users.findAll({
-      include: [db.userPost]
+      include: [db.userPost],
     });
     return res.status(200).json({
       success: "true",
@@ -119,6 +119,7 @@ self.getById = async (req, res) => {
 
 self.getAllData = async (req, res) => {
   try {
+    let {firstname,lastname} = req.body;
     let data = await users.findAll({
       include: [
         { association: db.userDetails },
@@ -127,6 +128,18 @@ self.getAllData = async (req, res) => {
           include: [db.postTag],
         },
       ],
+      where:{
+        [Op.or]:[
+          {
+            firstname: {
+              [Op.like]: `%${firstname}%`,
+            },
+            lastname:{
+              [Op.like]: `%${lastname}%`,
+            }
+          }
+        ]
+      }
     });
 
     console.log({ data });
@@ -136,37 +149,150 @@ self.getAllData = async (req, res) => {
   }
 };
 
+// self.searchData = async (req, res) => {
+//   try {
+//     // let { firstname, lastname, email } = req.query;
+
+//     let data = await users.findAll({
+//       // where: {
+//       //   [Op.or]: [
+//       //     {
+//       //       firstname: {
+//       //         [Op.like]: `%${firstname}%`,
+//       //       },
+//       //       lastname: {
+//       //         [Op.like]: `%${lastname}%`,
+//       //       },
+//       //       email: {
+//       //         [Op.like]: `%${email}%`,
+//       //       },
+//       //     },
+//       //   ],
+//       // },
+//     });
+
+//     return res.json({
+//       message:'success',
+//       data: data
+//     });
+//   } catch (err) {
+//     return res.send(err);
+//   }
+// };
+
+self.searchData = async (req, res) => {
+  
+  try{
+    let data = await users.findAll({
+      include: [
+        { association: db.userDetails },
+        {
+          association: db.userPost,
+          include: [db.postTag],
+        }
+      ] // return res.json({
+     
+      //   data: data
+      // });
+    });
+    console.log(data);
+
+    return res.send(data);
+   
+  }catch (err) {
+    res.send(err);
+  }
+}
+
+
+self.updateData = async (req, res) => {
+  try {
+    let id = req.params.id;
+    let data = await users
+      .findOne({
+        where: {
+          id: id,
+        },
+        // let userPost = users.getPosts();
+      })
+      // .then((user) => {
+      //   return user.getPosts();
+      // })
+      .then((user) => {
+        posts
+          .findOrCreate({
+            where: {
+              name: req.body.posts[0].name,
+              title: req.body.posts[0].title,
+              content: req.body.posts[0].content,
+              user_id: req.params.id,
+            },
+          })
+          .then((post) => {
+            user.setPosts(post.id);
+          });
+      });
+    return res.status(200).json({
+      success: "true",
+      message: "data updated",
+      data: data,
+    });
+    // .then((data)=>{
+    //   return res.status(200).json(data);
+    // })
+    // // .then((post)=>{
+    //    posts.setPosts(post.id);
+    //    posts.save();
+    // }).then(()=>{
+    //   return users.save();
+    // })
+
+    // return res.status(200).json({
+    //   success: "true",
+    //   message:"data updated"
+    // });
+  } catch (error) {
+    console.log({ error });
+  }
+};
 
 self.deleteIt = async (req, res) => {
-  try{
-
-    let data = await users.findAll({
-      where:{
-        user_id:req.params.id
-      },
-      include:[
-        {
-          model:[db.userDetails],
-          where: {user_id:id},
+  try {
+    let data = await users
+      .findOne({
+        where: {
+          user_id: req.params.id,
         },
-        {
-          model:[db.userPost]
-          ,where:{user_id:id}  
-        }
-      ]
-    }).then(function(deleted){
-      return users.destroy({where:{id:{$in:deleted.map(function(d){return d.id})}}})
-    })
+        include: [
+          {
+            model: [db.userDetails],
+            where: { user_id: id },
+          },
+          {
+            model: [db.userPost],
+            where: { user_id: id },
+          },
+        ],
+      })
+      .then(function (deleted) {
+        return users.destroy({
+          where: {
+            id: {
+              $in: deleted.map(function (d) {
+                return d.id;
+              }),
+            },
+          },
+        });
+      });
 
     return res.status(200).json({
       success: "true",
-      message:"data deleted"
+      message: "data deleted",
     });
-      
-  }catch(err) {
+  } catch (err) {
     res.send(err);
-
   }
-}
+};
 
 module.exports = self;

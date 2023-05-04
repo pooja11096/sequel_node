@@ -11,9 +11,15 @@ router.get('/',userData.getAllData);
 
 router.get('/:id',userData.getById);
 
+router.get('/update/:id',userData.updateIt);
+
+router.get('/updatee/:id',userData.updateData);
+
+router.get('/search',userData.searchData);
+
 router.post('/',userData.createUser);
 
-// router.put('/:id',userData.Update);
+router.put('/:id',userData.Update);
 
 router.delete('/:id',userData.deleteIt);
 

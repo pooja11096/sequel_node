@@ -552,3 +552,94 @@ self.createUser = async (req, res) => {
 //     });
 //   }
 // };
+
+
+self.updateIt = async (req, res) => {
+  try {
+    let id = req.params.id;
+    // let newData = {
+    //   firstname: req.body.firstname,
+    //   lastname: req.body.lastname,
+    //   email: req.body.email,
+    //   posts: req.body.posts,
+    // };
+
+    // let postD = [];
+    // let tagD = [];
+
+    // if (req.body.posts) {
+    //   let postL = req.body.posts.length;
+
+    //   for (var i = 0; i < postL; i++) {
+    //     if (req.body.posts.length) {
+    //       let tagL = req.body.posts[i].tags.length;
+
+    //       let postData = {
+    //         name: req.body.posts[i].name,
+    //         title: req.body.posts[i].title,
+    //         content: req.body.posts[i].content,
+    //       };
+    //       postD.push(postData);
+    //     }
+    //   }
+    // }
+
+    // console.log("postdata", postD);
+
+   
+    // let pData = {
+    //   name: req.body.posts[0].name,
+    //   title: req.body.posts[0].title,
+    //   content: req.body.posts[0].content,
+    //   user_id: req.params.id,
+    // };
+
+    let data = await users
+      .update(
+        {
+          firstname: req.body.firstname,
+          lastname: req.body.lastname,
+          email: req.body.email,
+          posts: req.body.posts,
+        },
+
+        {
+          where: {
+            id: id,
+          },
+        }
+      )
+      .then(async function () {
+        await users
+          .findByPk(id, {
+            include: [
+              db.userPost,
+              // {
+              //   association: db.userPost,
+              //   include: [db.postTag],
+              // },
+            ],
+          })
+          .then(async function (user) {
+            await posts
+              .findOrCreate({
+                where: {
+                  name: req.body.posts[0].name,
+                  title: req.body.posts[0].title,
+                  content: req.body.posts[0].content,
+                  user_id: req.params.id,
+                },
+              })
+              .then((post) => {
+                user.setPosts(post.id);
+              });
+          });
+      });
+    return res.status(200).json({
+      message: "data updated",
+      data: data,
+    });
+  } catch (error) {
+    console.log({ error });
+  }
+};
