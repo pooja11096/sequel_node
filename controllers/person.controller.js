@@ -1,6 +1,6 @@
-// const db = require("../models");
-const userQuery = require('../repository/user.repository')
-// const users = db.users;
+const db = require("../models");
+// const addData = require('../repository/user.repository')
+const person = db.person;
 const self = {};
 
 self.getMsg = async (req, res) => {
@@ -13,8 +13,7 @@ self.getMsg = async (req, res) => {
 
 self.getData = async (req, res) => {
   try {
-    // const data = await users.findAll();
-    const data = await userQuery.getData()
+    const data = await person.findAll();
 
     return res.send(data);
   } catch (err) {
@@ -30,8 +29,7 @@ self.getData = async (req, res) => {
 self.createData = async (req, res) => {
   try {
     
-    // const data = await users.create(req.body);
-    const data = await userQuery.createData(req.body)
+    const data = await person.create(req.body);
 
     return res.send(data);
   } catch (err) {
@@ -45,13 +43,11 @@ self.getById = async (req, res) => {
   try {
     let id = req.params.id;
 
-    // const data = await users.findAll({
-    //   where: {
-    //     id: id,
-    //   },
-    // });
-
-    const data = await userQuery.getDataById(id);
+    const data = await person.findAll({
+      where: {
+        id: id,
+      },
+    });
     return res.send(data);
   } catch (err) {
     return res.send(err);
@@ -62,12 +58,11 @@ self.updateData = async (req, res) => {
   try {
     let id = req.params.id;
 
-    // const data = await users.update(req.body, {
-    //   where: {
-    //     id: id,
-    //   },
-    // });
-    const data = await userQuery.updateData(req.body, id);
+    const data = await person.update(req.body, {
+      where: {
+        id: id,
+      },
+    });
     return res.json({
       message: "data updated successfully",
     });
@@ -80,12 +75,11 @@ self.deleteData = async (req, res) => {
   try {
     let id = req.params.id;
 
-    // const data = await users.destroy({
-    //   where: {
-    //     id: id,
-    //   },
-    // });
-    const data = await userQuery.deleteData(id);
+    const data = await person.destroy({
+      where: {
+        id: id,
+      },
+    });
     return res.json({
       message: "data deleted successfully",
     });
