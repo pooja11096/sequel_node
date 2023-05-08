@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+       * {
+        margin: 0;
+        padding: 0;
+    }
+
+    .container {
+        height: 100vh;
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+    }
+    form {
+        width: 900px;
+        justify-content: center;
+        display: flex;
+        flex-direction: column;
+    }
+
+    label {
+        font-size: 24px;
+    }
+
+    input, select {
+        border-radius: 3px;
+        padding: 2px;
+    }
+
+   
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+
+
+
+    <div>
+        <form action="">
+    <h1>Data Controls</h1>
+
+
+            <label for="">
+                <%= menu[0].selection_name %>
+            </label><br>
+            <select name="" id="">
+                <% for(var i=0; i<menu[0].option_master.length;i++){%>
+                    <option value="<%= menu[0].option_master[i].option_name %>">
+                        <%= menu[0].option_master[i].option_name %>
+                    </option>
+
+                    <% } %>
+
+            </select>
+        </form>
+    </div>
+</div>
+</body>
+</html>
